@@ -1,0 +1,2 @@
+# Djagno
+django practice projects
