@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Post lists</title>
+</head>
+<body>
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>User Name</th>
+        <th>Post</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for post in posts %}
+      <tr>
+        <th>{{ post.id }}</th>
+        <td>{{ post.name }}</td>
+        <td>{{ post.micropost }}</td>
+        <td>
+          <a href="{% url 'sample_app:edit_post' post_id=post.id %}">修正</a>
+          <a href="{% url 'sample_app:delete_post' post_id=post.id %}">削除</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <a href="{% url 'sample_app:create_post' %}">作成</a>
+</body>
+</html>
