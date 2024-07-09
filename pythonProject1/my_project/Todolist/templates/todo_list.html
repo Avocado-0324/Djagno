@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todo List</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .custom-width {
+            width: 30%; /* 你可以根据需要调整这个值 */
+        }
+        .card {
+            margin-bottom: 1rem;
+            box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+            transition: 0.3s;
+        }
+        .card:hover {
+            box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
+        }
+        .card-header {
+            background-color: #28a745; /* 绿色 */
+            color: white;
+        }
+        .btn-primary {
+            background-color: #007bff;
+            border-color: #007bff;
+        }
+        .btn-primary:hover {
+            background-color: #0056b3;
+            border-color: #0056b3;
+        }
+        .btn-success {
+            background-color: #28a745;
+            border-color: #28a745;
+        }
+        .btn-success:hover {
+            background-color: #218838;
+            border-color: #1e7e34;
+        }
+        .btn-danger {
+            background-color: #dc3545;
+            border-color: #dc3545;
+        }
+        .btn-danger:hover {
+            background-color: #c82333;
+            border-color: #bd2130;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center">Avocado's todo list</h1>
+        <form action="{% url 'add_todo' %}" method="POST" class="mb-4">
+            {% csrf_token %}
+            <div class="input-group">
+                <input type="text" name="title" class="form-control custom-width" placeholder="Add a new todo..." required>
+                <div class="input-group-append">
+                    <button class="btn btn-success" type="submit">保存</button>
+                </div>
+            </div>
+        </form>
+
+        <div class="row">
+            {% for todo in todos %}
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <div>
+                            <input type="checkbox" class="mr-2 delete-checkbox" id="todo-{{ todo.id }}" name="todo-{{ todo.id }}">
+                            <span {% if todo.completed %} style="text-decoration: line-through;"{% endif %}>{{ todo.title }}</span>
+                        </div>
+                        <div>
+                            <a href="{% url 'edit_todo' todo.id %}" class="btn btn-primary btn-info">编辑</a>
+                            <form action="{% url 'delete_todo' todo.id %}" method="POST" class="d-inline delete-form">
+                                {% csrf_token %}
+                                <input type="hidden" name="delete-checkbox" value="todo-{{ todo.id }}">
+                                <button type="submit" class="btn btn-danger">删除</button>
+                            </form>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">{{ todo.description }}</p>
+                        <p class="card-text"><small class="text-muted">Due date: {{ todo.due_date }}</small></p>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('.delete-form').on('submit', function(e) {
+                var checkboxId = $(this).find('input[name="delete-checkbox"]').val();
+                if (!$('#' + checkboxId).is(':checked')) {
+                    e.preventDefault();
+                    alert('请先选中复选框以确认删除。');
+                } else {
+                    // 将复选框的值设置为 'on' 以便后端可以检测到
+                    $('<input>').attr({
+                        type: 'hidden',
+                        name: checkboxId,
+                        value: 'on'
+                    }).appendTo($(this));
+                }
+            });
+        });
+    </script>
+</body>
+</html>

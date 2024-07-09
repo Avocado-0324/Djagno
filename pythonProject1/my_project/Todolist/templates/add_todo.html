@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>添加新的Todo</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-primary">添加</button>
+    </form>
+    <a href="{% url 'todo_list' %}" class="btn btn-secondary mt-3">返回列表</a>
+</div>
+{% endblock %}
