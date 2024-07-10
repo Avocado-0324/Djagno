@@ -1,13 +1,45 @@
 {% extends "base.html" %}
+{% load widget_tweaks %}
 
 {% block content %}
 <div class="container mt-5">
-    <h2>添加新的Todo</h2>
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit" class="btn btn-primary">添加</button>
-    </form>
-    <a href="{% url 'todo_list' %}" class="btn btn-secondary mt-3">返回列表</a>
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h2 class="mb-0">添加新的Todo</h2>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        <!-- 显示 Title 字段 -->
+                        <div class="form-group">
+                            <label for="{{ form.title.id_for_label }}">{{ form.title.label }}</label>
+                            {{ form.title|add_class:"form-control" }}
+                        </div>
+                        <!-- 显示 Description 字段 -->
+                        <div class="form-group">
+                            <label for="{{ form.description.id_for_label }}">{{ form.description.label }}</label>
+                            {{ form.description|add_class:"form-control" }}
+                        </div>
+                        <!-- 显示 Due Date 字段 -->
+                        <div class="form-group">
+                            <label for="{{ form.due_date.id_for_label }}">{{ form.due_date.label }}</label>
+                            {{ form.due_date|add_class:"form-control" }}
+                        </div>
+                        <!-- 显示 Priority 字段 -->
+                        <div class="form-group">
+                            <label for="{{ form.priority.id_for_label }}">{{ form.priority.label }}</label>
+                            {{ form.priority|add_class:"form-control" }}
+                        </div>
+                        <div class="form-group mt-4">
+                            <button type="submit" class="btn btn-success">添加</button>
+                            <a href="{% url 'todo_list' %}" class="btn btn-secondary ml-2">返回列表</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}

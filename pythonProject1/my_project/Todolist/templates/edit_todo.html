@@ -12,15 +12,38 @@
                 <div class="card-body">
                     <form method="post">
                         {% csrf_token %}
-                        {% for field in form %}
+                        <!-- 显示 Title 字段 -->
+                        <div class="form-group">
+                            <label for="{{ form.title.id_for_label }}">{{ form.title.label }}</label>
+                            {{ form.title|add_class:"form-control" }}
+                        </div>
+                        <!-- 显示 Description 字段 -->
+                        <div class="form-group">
+                            <label for="{{ form.description.id_for_label }}">{{ form.description.label }}</label>
+                            {{ form.description|add_class:"form-control" }}
+                        </div>
+                        <!-- 显示 Due Date 字段 -->
+                        <div class="form-group">
+                            <label for="{{ form.due_date.id_for_label }}">{{ form.due_date.label }}</label>
+                            {{ form.due_date|add_class:"form-control" }}
+                        </div>
+                        <!-- 显示 Priority 字段 -->
+                        <div class="form-group">
+                            <label for="{{ form.priority.id_for_label }}">{{ form.priority.label }}</label>
+                            {{ form.priority|add_class:"form-control" }}
+                        </div>
+                        <!-- 子任务管理表单 -->
+                        {{ formset.management_form }}
+                        <div id="subtasks-container">
+                            {% for subform in formset %}
                             <div class="form-group">
-                                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
-                                {{ field|add_class:"form-control" }}
-                                {% if field.help_text %}
-                                    <small class="form-text text-muted">{{ field.help_text }}</small>
-                                {% endif %}
+                                {{ subform.id }}
+                                {{ subform.title|add_class:"form-control" }}
+                                <button type="button" class="btn btn-danger remove-subtask">删除</button>
                             </div>
-                        {% endfor %}
+                            {% endfor %}
+                        </div>
+                        <button type="button" class="btn btn-secondary" id="add-subtask">添加子任务</button>
                         <div class="form-group mt-4">
                             <button type="submit" class="btn btn-success">保存更改</button>
                             <a href="{% url 'todo_list' %}" class="btn btn-secondary ml-2">取消</a>
@@ -31,4 +54,31 @@
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    var subtaskContainer = document.getElementById("subtasks-container");
+    var addSubtaskButton = document.getElementById("add-subtask");
+
+    addSubtaskButton.addEventListener("click", function() {
+        var newSubtask = document.createElement("div");
+        newSubtask.className = "form-group";
+        newSubtask.innerHTML = `
+            <input type="hidden" name="subtodo_set-TOTAL_FORMS" value="${subtaskContainer.children.length + 1}">
+            <input type="hidden" name="subtodo_set-INITIAL_FORMS" value="0">
+            <input type="hidden" name="subtodo_set-MIN_NUM_FORMS" value="0">
+            <input type="hidden" name="subtodo_set-MAX_NUM_FORMS" value="1000">
+            <input type="text" name="subtodo_set-${subtaskContainer.children.length}-title" class="form-control" placeholder="子任务">
+            <button type="button" class="btn btn-danger remove-subtask">删除</button>
+        `;
+        subtaskContainer.appendChild(newSubtask);
+    });
+
+    subtaskContainer.addEventListener("click", function(event) {
+        if (event.target.classList.contains("remove-subtask")) {
+            event.target.closest(".form-group").remove();
+        }
+    });
+});
+</script>
 {% endblock %}

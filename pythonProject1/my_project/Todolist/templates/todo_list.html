@@ -45,9 +45,45 @@
             background-color: #c82333;
             border-color: #bd2130;
         }
+        .priority-high {
+            background-color: red;
+        }
+        .priority-medium {
+            background-color: blue;
+        }
+        .priority-low {
+            background-color: green;
+        }
+        .priority-dot {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 10px; /* 增加右侧边距 */
+        }
+        .priority-text {
+            margin-left: 5px; /* 为文字添加左侧边距 */
+        }
+        .subtodo {
+            display: flex;
+            align-items: center;
+            padding: 5px;
+            margin-bottom: 5px;
+            background-color: #f8f9fa; /* 子任务背景颜色 */
+            border: 1px solid #dee2e6; /* 子任务边框颜色 */
+            border-radius: 5px;
+        }
+        .subtodo span {
+            margin-left: 10px;
+        }
+        .completed-subtodo {
+            background-color: #d4edda; /* 已完成子任务背景颜色 */
+            text-decoration: line-through;
+        }
     </style>
 </head>
 <body>
+    {% load custom_filters %}
     <div class="container mt-5">
         <h1 class="text-center">Avocado's todo list</h1>
         <form action="{% url 'add_todo' %}" method="POST" class="mb-4">
@@ -70,17 +106,32 @@
                             <span {% if todo.completed %} style="text-decoration: line-through;"{% endif %}>{{ todo.title }}</span>
                         </div>
                         <div>
-                            <a href="{% url 'edit_todo' todo.id %}" class="btn btn-primary btn-info">编辑</a>
+                            <a href="{% url 'edit_todo' todo.id %}" class="btn btn-sm btn-primary">编辑</a>
                             <form action="{% url 'delete_todo' todo.id %}" method="POST" class="d-inline delete-form">
                                 {% csrf_token %}
                                 <input type="hidden" name="delete-checkbox" value="todo-{{ todo.id }}">
-                                <button type="submit" class="btn btn-danger">删除</button>
+                                <button type="submit" class="btn btn-sm btn-danger delete-button">删除</button>
                             </form>
                         </div>
                     </div>
                     <div class="card-body">
                         <p class="card-text">{{ todo.description }}</p>
-                        <p class="card-text"><small class="text-muted">Due date: {{ todo.due_date }}</small></p>
+                        <p class="card-text"><small class="text-muted">剩余时间: {{ todo.due_date|days_until }} 天</small></p>
+                        <p class="card-text">
+                            <small class="text-muted">
+                                优先级:
+                                <span class="priority-dot {% if todo.priority == '1' %}priority-high{% elif todo.priority == '2' %}priority-medium{% elif todo.priority == '3' %}priority-low{% endif %}"></span>
+                                <span class="priority-text">{{ todo.get_priority_display }}</span>
+                            </small>
+                        </p>
+                        <div class="subtodos">
+                            {% for sub in todo.subtodos.all %}
+                            <div class="subtodo {% if sub.completed %}completed-subtodo{% endif %}">
+                                <input type="checkbox" {% if sub.completed %}checked{% endif %} class="subtask-checkbox">
+                                <span {% if sub.completed %} style="text-decoration: line-through;"{% endif %}>{{ sub.title }}</span>
+                            </div>
+                            {% endfor %}
+                        </div>
                     </div>
                 </div>
             </div>
@@ -92,6 +143,17 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script>
         $(document).ready(function() {
+            $('.subtask-checkbox').on('change', function() {
+                var subtask = $(this).closest('.subtodo');
+                if (this.checked) {
+                    subtask.addClass('completed-subtodo');
+                    subtask.find('span').css('text-decoration', 'line-through');
+                } else {
+                    subtask.removeClass('completed-subtodo');
+                    subtask.find('span').css('text-decoration', 'none');
+                }
+            });
+
             $('.delete-form').on('submit', function(e) {
                 var checkboxId = $(this).find('input[name="delete-checkbox"]').val();
                 if (!$('#' + checkboxId).is(':checked')) {
@@ -110,3 +172,4 @@
     </script>
 </body>
 </html>
+
